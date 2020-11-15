@@ -19,6 +19,7 @@ class Connectivity_metrics(object):
         self.net_label_txt = net_label_txt
         self.labels_dic = labels_dic
 
+
     def nodes_overall_conn(self):
         '''
 
@@ -46,7 +47,9 @@ class Connectivity_metrics(object):
                 self.nodes_conn.append(self._node_conn)
         self.nodes_conn = np.array(self.nodes_conn)
         self.nodes_conn = self.nodes_conn.reshape(len(self.matrices_files), self.matrix.shape[0])
+
         return self.nodes_conn
+
 
 
     def node_inner_conn(self, sbj_number, nodes_number):
@@ -83,7 +86,9 @@ class Connectivity_metrics(object):
                     self.sub_matrix =self.matrix[nodes]
                     self.streamlines_sum = np.sum(self.sub_matrix[self.labels_dic[network]])
                     self.all_conn[subj, nodes] = self.streamlines_sum/self.labels_dic[network].shape[0]
+
         return self.all_conn
+
 
 
     def node_outer_conn(self, sbj_number, nodes_number):
@@ -123,7 +128,38 @@ class Connectivity_metrics(object):
                     self.sub_matrix =self.matrix[nodes]
                     self.streamlines_sum = np.sum(self.sub_matrix[self.outer_idx])
                     self.all_conn[subj, nodes] = self.streamlines_sum/self.outer_idx.shape[0]
+
         return self.all_conn
+
+
+
+    def node_ranking(self, sbj_number, nodes_number, networks_number):
+        '''
+        computing how much each node is connected with the each network
+
+        Returns
+        -------
+
+        float data : numpy array |
+        numpy a 3D array (dim number of subject X  number of network X number of network)
+        representing the connectivity of each node with all the networks
+
+        '''
+        with open(self.net_label_txt) as f:
+            net=f.read().splitlines()
+        self.all_conn = np.zeros([sbj_number, nodes_number, networks_number])
+        for subj in range(len(self.matrices_files)):
+            self.matrix = pd.read_csv(self.matrices_files[subj], sep= ' ', header=None)
+            self.matrix = np.array(self.matrix)
+            np.fill_diagonal(self.matrix,0)
+            for nodes in range(self.matrix.shape[0]):
+                self.node_conn = self.matrix[nodes]
+                for network in net:
+                    self.streamlines_sum =  np.sum(self.node_conn[self.labels_dic[network]])
+                    self.all_conn[subj, nodes, net.index(network)] = self.streamlines_sum/self.labels_dic[network].shape[0]
+
+        return self.all_conn
+
 
 
     def net_inner_conn(self):
@@ -154,12 +190,14 @@ class Connectivity_metrics(object):
                 self.all_conn.append(self.conn_measure)
         self.all_conn = np.array(self.all_conn)
         self.all_conn = self.all_conn.reshape(len(self.matrices_files), len(net))
+
         return self.all_conn
+
 
 
     def net_outer_conn(self):
         '''
-        computing the how much each network is connected with the other
+        computing how much each network is connected with the other
         networks
 
         Returns
@@ -170,7 +208,6 @@ class Connectivity_metrics(object):
         representing the connectivity of each network with other networks
 
         '''
-
 
         with open(self.net_label_txt) as f:
             net=f.read().splitlines()
@@ -189,4 +226,5 @@ class Connectivity_metrics(object):
                 self.all_conn.append(self.conn_measure)
         self.all_conn = np.array(self.all_conn)
         self.all_conn = self.all_conn.reshape(len(self.matrices_files), len(net))
+
         return self.all_conn
