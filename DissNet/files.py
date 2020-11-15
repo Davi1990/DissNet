@@ -15,10 +15,18 @@ class Files(object):
     '''
     reading the connectome and nodes' labels files
 
-    path: path where connectome are located
-    connectome_name: name of connectome .csv files
-    label_txt (optional): name of nodes' label .txt file
-    network_txt (optional): name of networks' label .txt file
+    Parameters
+    ----------
+
+    path: str |
+    path where the connectomes are located
+    connectome_name: str |
+    name of connectome .csv files (e.g. 'new_atlas_Yeo.csv')
+    label_txt (optional): str |
+    name of nodes' label .txt file (see example 'labels.txt')
+    network_txt (optional): str |
+    name of networks' label .txt file (see example 'net_labels.txt')
+
     '''
     def __init__(self, path, connectome_name, label_txt=None, network_txt=None):
 
@@ -33,7 +41,19 @@ class Files(object):
 
 
     def labels(self):
-         with open(self.path + '/' + self.label_txt) as f:
+        '''
+        Returns
+        -------
+
+        kwargs : dict |
+        Dictionary with keyword arguments to be used for labels
+        node and network connectivity extraction.
+        For nodes name, key is ['nodes']. For the network index
+        of each nodes the key is ['network']
+
+        '''
+
+        with open(self.path + '/' + self.label_txt) as f:
              self.labels=f.read().splitlines()
              with open(self.path + '/' + self.network_txt) as f:
                  self.networks=f.read().splitlines()
