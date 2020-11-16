@@ -6,6 +6,8 @@ from surfer import Brain
 from mayavi import mlab
 import numpy as np
 import pandas as pd
+from math import pi
+
 
 
 
@@ -44,7 +46,7 @@ def plot_surface(subjects_dir, atlas, subject, hemi, surf, opacity=None ,scale_f
     color = np.array(matrix[:,2:5], dtype='float32')
     def NormalizeData(data):
          return (data - np.min(data)) / (np.max(data) - np.min(data))
-    if scale_factor==None:
+    if scale_factor.any()==None:
      scale_factor_norm= np.zeros(matrix.shape[0]) + 0.5
     else:
         scale_factor_norm = NormalizeData(scale_factor) + 0.5
@@ -71,7 +73,48 @@ def plot_surface(subjects_dir, atlas, subject, hemi, surf, opacity=None ,scale_f
     mlab.show()
 
 
-def spider_plot(labels, values, colour, linestyle, linecolour, linewidth, label_colour, label_size, ylim):
+def spider_plot(labels, values, colour=None, linestyle=None, linecolour=None, linewidth=None, label_colour=None, label_size=None, alpha=None, ylim=None):
+
+    if ylim==None:
+        ylim= np.max(values) + (10 - np.max(values)  % 10)
+    else:
+        ylim=ylim
+
+    if alpha==None:
+        alpha = 0.5
+    else:
+        alpha= alpha
+
+    if label_colour==None:
+        label_colour='black'
+    else:
+        label_colour=label_colour
+
+    if label_size==None:
+        label_size=8
+    else:
+        label_size=label_size
+
+    if linewidth==None:
+        linewidth=1
+    else:
+        linewidth=linewidth
+
+    if linecolour==None:
+        linecolour=color
+    else:
+        linecolour=linecolour
+
+    if linestyle==None:
+        linestyle='solid'
+    else:
+        linestyle=linestyle
+
+    if colour==None:
+        colour= 'orange'
+    else:
+        colour=colour
+
     values = values * 100 / np.sum(values)
     values = values.tolist()
     values += values[:1]
@@ -80,27 +123,40 @@ def spider_plot(labels, values, colour, linestyle, linecolour, linewidth, label_
     angles += angles[:1]
     ax = plt.subplot(111, polar=True)
 
-    plt.xticks(angles, Net, color=label_colour, size=label_size)
+    plt.xticks(angles, labels, color=label_colour, size=label_size)
 
     ax.set_rlabel_position(0)
     plt.ylim(0,ylim)
 
     ax.plot(angles, values, linecolour , linewidth=linewidth, linestyle=linestyle)
 
-    ax.fill(angles, values, colour, alpha=0.3)
+    ax.fill(angles, values, colour, alpha=alpha)
     plt.show()
 
 
 
-def bar_plot(Net_label, values, align, alpha, xlabel):
+def bar_plot(network2use, values, align=None, alpha=None, xlabel=None):
+    if align==None:
+        align='center'
+    else:
+        align=align
+
+    if alpha==None:
+        alpha=0.8
+    else:
+        alpha=alpha
+
+    if xlabel==None:
+        xlabel='Connectivity'
+    else:
+        xlabel=xlabel
+
+    network2use = pd.read_excel(network2use, header=None)
+    Net_label=list(network2use[0])
     barlist= plt.barh(np.arange(len(Net_label)), values, align=align, alpha=alpha)
     plt.yticks(np.arange(len(Net_label)), Net_label)
     plt.xlabel(xlabel)
-    barlist[0].set_color('purple')
-    barlist[1].set_color('skyblue')
-    barlist[2].set_color('green')
-    barlist[3].set_color('violet')
-    barlist[4].set_color('wheat')
-    barlist[5].set_color('orange')
-    barlist[6].set_color('#cb181d')
+    for net in range(len(Net_label)):
+        barlist[net].set_color([network2use[1][net]/255.0,network2use[2][net]/255.0,network2use[3][net]/255.0])
+
     plt.show()

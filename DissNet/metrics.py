@@ -228,3 +228,47 @@ class Connectivity_metrics(object):
         self.all_conn = self.all_conn.reshape(len(self.matrices_files), len(net))
 
         return self.all_conn
+
+
+
+    def net_ranking(self, sbj_number, nodes_number, percentage_value=False):
+        '''
+        computing how much each node is connected with the each network
+
+        Returns
+        -------
+
+        float data : numpy array |
+        numpy a 3D array (dim number of subject X  number of network X number of network)
+        representing the connectivity of each node with all the networks
+
+        '''
+        with open(self.net_label_txt) as f:
+            net=f.read().splitlines()
+        self.all_conn = self.node_ranking(sbj_number, nodes_number, len(net))
+        self.all_conn_rank = np.zeros([sbj_number, len(net), len(net)])
+        for subj in range(len(self.matrices_files)):
+            self.subj2use = self.all_conn[subj,:,:]
+            for network in net:
+                self.net2use = self.subj2use[self.labels_dic[network],:]
+                if percentage_value==False:
+                    self.all_conn_rank[subj, net.index(network), :] = np.mean(self.net2use, axis=0)
+                else:
+                    self.all_conn_rank[subj, net.index(network), :] = 100* np.mean(self.net2use, axis=0)/np.sum(np.mean(self.net2use, axis=0))
+
+        return self.all_conn_rank
+
+
+
+    def all_standard_metrics(self, sbj_number, nodes_number, networks_number, percentage_value=False):
+        self.metrics_dict = {
+        "nodes_overall_conn": self.nodes_overall_conn(),
+        "node_inner_conn": self.node_inner_conn(sbj_number, nodes_number),
+        "node_outer_conn": self.node_outer_conn(sbj_number, nodes_number),
+        "node_ranking": self.node_ranking(sbj_number, nodes_number, networks_number),
+        "net_inner_conn": self.net_inner_conn(),
+        "net_outer_conn": self.net_outer_conn(),
+        "net_ranking": self.net_ranking(sbj_number, nodes_number, percentage_value=percentage_value)
+        }
+
+        return self.metrics_dict
