@@ -9,6 +9,7 @@ from math import pi
 import glob
 import seaborn as sns
 import matplotlib.pyplot as plt
+import bct as bct
 
 
 class Connectivity_metrics(object):
@@ -315,7 +316,7 @@ class Connectivity_metrics(object):
                         True return values express in percentage_value
                         False return raw values
 
-        
+
         Returns
         -------
 
@@ -390,9 +391,11 @@ class Graph_Theory(object):
                     The indegree
         in_degree: int | Number of inward links
         out_degree: int | Number of outward links
-        joint_in_degree : int | number of vertices with in_degree>out_degree
-        joint_out_degree : int | number of vertices with out_degree>in_degree
-        joint_bilateral : int | number of vertices with in_degree==out_degree
+        joint_in_degree: int | number of vertices with in_degree>out_degree
+        joint_out_degree: int | number of vertices with out_degree>in_degree
+        joint_bilateral: int | number of vertices with in_degree==out_degree
+        node_strength_dir: int | node strength (in-strength + out-strength)
+        node_strength_undir: int | sum of weights of links connected to the node
         '''
 
 
@@ -402,7 +405,9 @@ class Graph_Theory(object):
         "out_degree" : np.zeros([sbj_number, nodes_number]),
         "joint_in_degree" : np.zeros([sbj_number, nodes_number]),
         "joint_out_degree" : np.zeros([sbj_number, nodes_number]),
-        "joint_bilateral" : np.zeros([sbj_number, nodes_number])
+        "joint_bilateral" : np.zeros([sbj_number, nodes_number]),
+        "node_strength_dir": np.zeros([sbj_number, nodes_number]),
+        "node_strength_undir":np.zeros([sbj_number, nodes_number])
         }
         for subj in range(len(self.matrices_files)):
             self.matrix = pd.read_csv(self.matrices_files[subj], sep= ' ', header=None)
@@ -412,26 +417,40 @@ class Graph_Theory(object):
             else:
                 self.matrix = self.matrix
             np.fill_diagonal(self.matrix,0)
-            self.matrix_bin = self.matrix
-            self.matrix_bin[self.matrix_bin != 0] = 1 #bin matrix
-            self.indegree = np.sum(self.matrix_bin, axis=0)  # indegree = column sum of CIJ
-            self.all_nodal_degree['in_degree'][subj] = self.indegree
-            self.outdegree = np.sum(self.matrix_bin, axis=1)  # outdegree = row sum of CIJ
-            self.all_nodal_degree['out_degree'][subj] = self.outdegree
-            self.deg = self.indegree + self.outdegree  # degree = indegree+outdegree
+
+            self.inp, self.od, self.deg = bct.algorithms.degrees_dir(self.matrix)
+            self.all_nodal_degree['in_degree'][subj] = self.inp
+            self.all_nodal_degree['out_degree'][subj] = self.od
             self.all_nodal_degree['degree'][subj] = self.deg
 
-            self.szJ = np.max((self.indegree, self.outdegree)) + 1
-            self.joint = np.zeros((self.szJ, self.szJ))
+            self.J, self.J_od, self.J_id, self.J_bl = bct.algorithms.jdegree(self.matrix)
+            self.all_nodal_degree['joint_in_degree'][subj] = self.J_id
+            self.all_nodal_degree['joint_out_degree'][subj] = self.J_od
+            self.all_nodal_degree['joint_bilateral'][subj] = self.J_bl
 
-            for i in range(len(self.matrix_bin)):
-                self.joint[self.indegree[i], self.outdegree[i]] += 1
+            self.nodestr_dir = bct.algorithms.strengths_dir(self.matrix)
+            self.all_nodal_degree['node_strength_dir'][subj] = self.nodestr_dir
 
-            self.joint_od = np.sum(np.triu(self.joint, 1))
-            self.joint_id = np.sum(np.tril(self.joint, -1))
-            self.joint_bl = np.sum(np.diag(self.joint))
-            self.all_nodal_degree['joint_in_degree'][subj] = self.joint_id
-            self.all_nodal_degree['joint_out_degree'][subj] = self.joint_od
-            self.all_nodal_degree['joint_bilateral'][subj] = self.joint_bl
+            self.nodestr_undir = bct.algorithms.strengths_und(self.matrix)
+            self.all_nodal_degree['node_strength_undir'][subj] = self.nodestr_undir
 
         return self.all_nodal_degree
+
+
+    def network_level_degree(self, sbj_number, nodes_number, label_dic, make_symmetric=True):
+        with open(self.net_label_txt) as f:
+            net=f.read().splitlines()
+        self.degree = self.nodal_degree(sbj_number, nodes_number, make_symmetric=make_symmetric)
+        self.values = np.zeros([sbj_number, len(self.degree.keys()), len(net)])
+        self.list = list(self.degree.keys())
+        for subject in range(sbj_number):
+             for key in self.list:
+                 for network in net:
+                     self.values[subject, self.list.index(key), net.index(network)] = np.mean(self.degree[key][subject][label_dic[network]])
+
+        self.values=np.mean(self.values, axis=0)
+        self.d = {}
+        for i in self.degree.keys():
+            self.d[i] = self.values[self.list.index(i)]
+
+        return self.d
