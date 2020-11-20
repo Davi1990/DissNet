@@ -366,9 +366,9 @@ class Graph_Theory(object):
         self.net_label_txt = net_label_txt
         self.labels_dic = labels_dic
 
-    def nodal_degree(self, sbj_number, nodes_number, make_symmetric=True):
+    def nodal_degree(self, sbj_number, nodes_number, make_symmetric=True, binarize=False):
         '''
-        computing how much each node is connected with the each network
+        computing graph theory node measures regardless of network affiliation
 
 
         Parameters
@@ -381,6 +381,9 @@ class Graph_Theory(object):
                         True indicate that the matrix is either upper
                         or lower triangular and need to be symmetrize
                         False indicate that the matrix is a full matrix already
+        binarize= Boolean|
+                        True will make the connectivity matrix binary
+                        Default is False
 
         Returns
         -------
@@ -388,7 +391,6 @@ class Graph_Theory(object):
         dict: : dictonary with the following keys |
 
         degree: int | Number of links connected to the node
-                    The indegree
         in_degree: int | Number of inward links
         out_degree: int | Number of outward links
         joint_in_degree: int | number of vertices with in_degree>out_degree
@@ -416,6 +418,12 @@ class Graph_Theory(object):
                 self.matrix = self.matrix + self.matrix.T - np.diag(self.matrix.diagonal())
             else:
                 self.matrix = self.matrix
+
+            if binarize==True:
+                self.matrix = bct.algorithms.binarize(self.matrix)
+            else:
+                self.matrix = self.matrix
+
             np.fill_diagonal(self.matrix,0)
 
             self.inp, self.od, self.deg = bct.algorithms.degrees_dir(self.matrix)
@@ -437,20 +445,199 @@ class Graph_Theory(object):
         return self.all_nodal_degree
 
 
-    def network_level_degree(self, sbj_number, nodes_number, label_dic, make_symmetric=True):
+    def network_level_degree(self, sbj_number, nodes_number, label_dic, make_symmetric=True, binarize=False):
+        '''
+        computing graph theory node measures specific for each network
+
+
+        Parameters
+        ----------
+        sbj_number: int |
+                    number of subjects
+        nodes_number: int|
+                      number of nodes
+        label_dic = dict |
+                    dictonary computed using files.labels()
+        make_symmetric: Boolean|
+                        True indicate that the matrix is either upper
+                        or lower triangular and need to be symmetrize
+                        False indicate that the matrix is a full matrix already
+        binarize= Boolean|
+                        True will make the connectivity matrix binary
+                        Default is False
+
+        Returns
+        -------
+
+        dict: : dictonary with the following keys |
+
+        degree: int | Number of links connected to the node
+        in_degree: int | Number of inward links
+        out_degree: int | Number of outward links
+        joint_in_degree: int | number of vertices with in_degree>out_degree
+        joint_out_degree: int | number of vertices with out_degree>in_degree
+        joint_bilateral: int | number of vertices with in_degree==out_degree
+        node_strength_dir: int | node strength (in-strength + out-strength)
+        node_strength_undir: int | sum of weights of links connected to the node
+        '''
+
         with open(self.net_label_txt) as f:
             net=f.read().splitlines()
-        self.degree = self.nodal_degree(sbj_number, nodes_number, make_symmetric=make_symmetric)
+        self.degree = self.nodal_degree(sbj_number, nodes_number, make_symmetric=make_symmetric, binarize=binarize)
         self.values = np.zeros([sbj_number, len(self.degree.keys()), len(net)])
         self.list = list(self.degree.keys())
+
         for subject in range(sbj_number):
              for key in self.list:
                  for network in net:
                      self.values[subject, self.list.index(key), net.index(network)] = np.mean(self.degree[key][subject][label_dic[network]])
 
-        self.values=np.mean(self.values, axis=0)
         self.d = {}
         for i in self.degree.keys():
-            self.d[i] = self.values[self.list.index(i)]
+            self.d[i] = self.values[:, self.list.index(i), :]
 
         return self.d
+
+
+
+    def physical_connectivity(self, sbj_number, networks_number, label_dic, make_symmetric=True, binarize=False):
+        '''
+        Density is the fraction of present connections to possible connections.
+
+
+        Parameters
+        ----------
+        sbj_number: int |
+                    number of subjects
+        networks_number: int|
+                      number of networks
+        label_dic = dict |
+                    dictonary computed using files.labels()
+        make_symmetric: Boolean|
+                        True indicate that the matrix is either upper
+                        or lower triangular and need to be symmetrize
+                        False indicate that the matrix is a full matrix already
+
+        binarize= Boolean|
+                        True will make the connectivity matrix binary
+                        Default is False
+
+
+        Returns
+        -------
+
+        dict: : dictonary with the following keys |
+
+        Density_und: int | Density is the fraction of present connections
+                        to possible connections
+
+        '''
+
+        with open(self.net_label_txt) as f:
+            net=f.read().splitlines()
+
+        self.physical_connectivity = {
+        "Density_und": np.zeros([sbj_number, networks_number]),
+        }
+
+        for subj in range(len(self.matrices_files)):
+            self.matrix = pd.read_csv(self.matrices_files[subj], sep= ' ', header=None)
+            self.matrix = np.array(self.matrix)
+            if make_symmetric==True:
+                self.matrix = self.matrix + self.matrix.T - np.diag(self.matrix.diagonal())
+            else:
+                self.matrix = self.matrix
+
+            if binarize==True:
+                self.matrix = bct.algorithms.binarize(self.matrix)
+            else:
+                self.matrix = self.matrix
+
+            np.fill_diagonal(self.matrix,0)
+
+            for network in net:
+                self.net_matrix = self.matrix[label_dic[network]]
+                self.net_matrix = self.net_matrix[:,label_dic[network]]
+                self.kden, self.n, self.k = bct.algorithms.density_und(self.net_matrix)
+                self.physical_connectivity['Density_und'][subj, net.index(network)] = self.kden
+
+        return self.physical_connectivity
+
+
+
+
+    def mdoularity(self, sbj_number, networks_number, label_dic, make_symmetric=True, binarize=False):
+        '''
+        Computing modularity of the adjencency matrix adjacency matrix
+
+
+        Parameters
+        ----------
+        sbj_number: int |
+                    number of subjects
+        networks_number: int|
+                      number of networks
+        label_dic = dict |
+                    dictonary computed using files.labels()
+        make_symmetric: Boolean|
+                        True indicate that the matrix is either upper
+                        or lower triangular and need to be symmetrize
+                        False indicate that the matrix is a full matrix already
+        binarize= Boolean|
+                        True will make the connectivity matrix binary
+                        Default is False
+
+
+        Returns
+        -------
+
+        dict: : dictonary with the following keys |
+
+        community_louvain: int | Modularity values
+        similarity_idx: float32 | Values indicating how much each original
+                                 network is similar to the new modules found
+                                 with the modularity algorithm
+        '''
+
+
+        with open(self.net_label_txt) as f:
+            net=f.read().splitlines()
+
+        self.modularity = {
+        "community_louvain": np.zeros([sbj_number, networks_number]),
+        "similarity_idx": np.zeros([sbj_number, networks_number])
+        }
+
+        for subj in range(len(self.matrices_files)):
+            self.matrix = pd.read_csv(self.matrices_files[subj], sep= ' ', header=None)
+            self.matrix = np.array(self.matrix)
+            if make_symmetric==True:
+                self.matrix = self.matrix + self.matrix.T - np.diag(self.matrix.diagonal())
+            else:
+                self.matrix = self.matrix
+
+            if binarize==True:
+                self.matrix = bct.algorithms.binarize(self.matrix)
+            else:
+                self.matrix = self.matrix
+            np.fill_diagonal(self.matrix,0)
+
+            for network in net:
+                self.net_matrix = self.matrix[label_dic[network]]
+                self.net_matrix = self.net_matrix[:,label_dic[network]]
+                self.ci, self.q  = bct.algorithms.community_louvain(self.net_matrix)
+                self.modularity['community_louvain'][subj, net.index(network)] = self.q
+
+            self.unico = np.unique(self.ci)
+            self.index={}
+            for values in self.unico:
+                self.index[values]= np.where(self.ci == values)
+            self.similarity_matrix = np.zeros([len(net), self.unico.shape[0]])
+            for network in net:
+                for module in self.unico:
+                    self.simil =  np.intersect1d(label_dic[network], self.index[module])
+                    self.similarity_matrix[net.index(network), module-1] = self.simil.shape[0]
+
+                self.modularity['similarity_idx'][subj, net.index(network)] = (np.max(self.similarity_matrix[net.index(network)]) - np.min(self.similarity_matrix[net.index(network)])) / label_dic[network].shape[0]
+
+        return self.modularity

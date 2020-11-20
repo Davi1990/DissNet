@@ -38,7 +38,7 @@ def plot_surface(subjects_dir, atlas, subject, hemi, surf, opacity=None ,scale_f
         vector (dim number of regions x 1) representing the size of each node.
         For example, it can be connectivity of that specific node calculated
         using any functions available in metrics. Default is 0.5
-    threshold= float | 
+    threshold= float |
         threshold to plot only the nodes that overcome that specific values
         Default is None
     '''
@@ -164,6 +164,7 @@ def bar_plot(network2use, values, align=None, alpha=None, xlabel=None):
     barlist= plt.barh(np.arange(len(Net_label)), values, align=align, alpha=alpha)
     plt.yticks(np.arange(len(Net_label)), Net_label)
     plt.xlabel(xlabel)
+    plt.xlim(np.min(values) - np.std(values), np.max(values) + np.std(values))
     for net in range(len(Net_label)):
         barlist[net].set_color([network2use[1][net]/255.0,network2use[2][net]/255.0,network2use[3][net]/255.0])
 
