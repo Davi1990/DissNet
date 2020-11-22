@@ -7,11 +7,12 @@ from mayavi import mlab
 import numpy as np
 import pandas as pd
 from math import pi
+import networkx as nx
+from tvtk.api import tvtk
 
 
-
-
-def plot_surface(subjects_dir, atlas, subject, hemi, surf, opacity=None ,scale_factor=None, threshold=None):
+def plot_surface(subjects_dir, atlas, subject, hemi, surf, opacity=None ,scale_factor=None, threshold=None,
+                 connectivity_matrix=None, connectivity_thr=None):
     '''
     plot each nodes using pysurfer
 
@@ -41,18 +42,26 @@ def plot_surface(subjects_dir, atlas, subject, hemi, surf, opacity=None ,scale_f
     threshold= float |
         threshold to plot only the nodes that overcome that specific values
         Default is None
+    connectivity_matrix (optional) = np.array |
+        vector (dim number of regions x number of regions) representing
+        the connectivity of each node.
+    connectivity_thr (optional) = scalar |
+    
     '''
     np.set_printoptions(suppress=True) #prevent numpy exponential
     label = pd.read_excel(atlas, header=None)
     matrix = np.array(label)
     coords = np.array(matrix[:,5:8], dtype='float32')
     color = np.array(matrix[:,2:5], dtype='float32')
+
     def NormalizeData(data):
          return (data - np.min(data)) / (np.max(data) - np.min(data))
-    if scale_factor.any()==None:
-     scale_factor_norm= np.zeros(matrix.shape[0]) + 0.5
-    else:
+    if scale_factor is not None:
         scale_factor_norm = NormalizeData(scale_factor)
+    else:
+        scale_factor_norm= np.zeros(matrix.shape[0]) + 0.5
+
+
 
     if threshold==None:
      scale_factor_norm= scale_factor_norm
@@ -70,13 +79,37 @@ def plot_surface(subjects_dir, atlas, subject, hemi, surf, opacity=None ,scale_f
         hemi=hemi
 
     brain = Brain(subject, subjects_dir=subjects_dir, hemi=hemi, surf=surf, cortex='ivory', alpha=opacity)
-    #for hemi in ["lh", "rh"]:
-    #    brain = Brain(subject, subjects_dir=subjects_dir, hemi=hemi, surf='pial', cortex='ivory', alpha=0.5)
-    #    brain.add_foci(coords, color="green", scale_factor=0.8)
     for roi in range(coords.shape[0]):
-        brain.add_foci(coords[roi], color=(color[roi][0]/255.0, color[roi][1]/255.0, color[roi][2]/255.0), scale_factor=scale_factor_norm[roi], hemi='rh')
+       brain.add_foci(coords[roi], color=(color[roi][0]/255.0, color[roi][1]/255.0, color[roi][2]/255.0), scale_factor=scale_factor_norm[roi], hemi='rh')
 
-    #brain.add_foci(coords, color="green", scale_factor=0.8)
+
+
+    def edgelist(df):
+       a = df.values
+       c = df.columns
+       n = len(c)
+
+       c_ar = np.array(c)
+       out = np.empty((n, n, 2), dtype=c_ar.dtype)
+
+       out[...,0] = c_ar[:,None]
+       out[...,1] = c_ar
+
+       mask = ~np.eye(n,dtype=bool)
+       df_out = pd.DataFrame(out[mask], columns=[['Source','Target']])
+       df_out['Weight'] = a[mask]
+       return df_out
+
+    if connectivity_matrix is not None:
+        connectivity_matrix = pd.DataFrame(connectivity_matrix)
+        edge_list = edgelist(connectivity_matrix)
+        values = np.array(edge_list)
+        pos = np.where(values[:,2]>connectivity_thr)
+        edges = values[:,0:2][pos]
+        weights =  NormalizeData(values[:,2][pos])
+        for xx in range(edges.shape[0]):
+            mlab.plot3d(coords[edges[xx]][:,0],coords[edges[xx]][:,1], coords[edges[xx]][:,2],
+                        tube_radius=weights[xx]+0.25)
 
     mlab.show()
 

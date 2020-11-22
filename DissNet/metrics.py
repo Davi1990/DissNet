@@ -566,7 +566,7 @@ class Graph_Theory(object):
 
 
 
-    def mdoularity(self, sbj_number, networks_number, label_dic, make_symmetric=True, binarize=False):
+    def modularity(self, sbj_number, networks_number, label_dic, make_symmetric=True, binarize=False):
         '''
         Computing modularity of the adjencency matrix adjacency matrix
 
@@ -641,3 +641,71 @@ class Graph_Theory(object):
                 self.modularity['similarity_idx'][subj, net.index(network)] = (np.max(self.similarity_matrix[net.index(network)]) - np.min(self.similarity_matrix[net.index(network)])) / label_dic[network].shape[0]
 
         return self.modularity
+
+
+
+
+    def centrality(self, sbj_number, nodes_number, label_dic, atlas, make_symmetric=True, binarize=False):
+
+        with open(self.net_label_txt) as f:
+            net=f.read().splitlines()
+
+        self.atlas = pd.read_excel(atlas, header=None)
+        self.atlas = np.array(self.atlas)
+        self.ci_original = self.atlas[:,8]
+
+        self.centrality = {
+        "edge_betweeness_bin": np.zeros([sbj_number, nodes_number]),
+        "edge_betweeness_wei": np.zeros([sbj_number, nodes_number]),
+        "eigenvector_centrality_und": np.zeros([sbj_number, nodes_number]),
+        "coreness_kcoreness_centrality_bu": np.zeros([sbj_number, nodes_number]),
+        "kn_kcoreness_centrality_bu": np.zeros([sbj_number, nodes_number]),
+        "module_degree_zscore": np.zeros([sbj_number, nodes_number]),
+        "participation_coef": np.zeros([sbj_number, nodes_number]),
+        "subgraph_centrality": np.zeros([sbj_number, nodes_number])
+        }
+
+        for subj in range(len(self.matrices_files)):
+            self.matrix = pd.read_csv(self.matrices_files[subj], sep= ' ', header=None)
+            self.matrix = np.array(self.matrix)
+            if make_symmetric==True:
+                self.matrix = self.matrix + self.matrix.T - np.diag(self.matrix.diagonal())
+            else:
+                self.matrix = self.matrix
+
+            self.matrix_bin = bct.algorithms.binarize(self.matrix)
+            self.matrix_weight = self.matrix
+
+            if binarize==True:
+                self.matrix = bct.algorithms.binarize(self.matrix)
+            else:
+                self.matrix = self.matrix
+
+
+            np.fill_diagonal(self.matrix,0)
+            np.fill_diagonal(self.matrix_bin,0)
+            np.fill_diagonal(self.matrix_weight,0)
+
+            self.BC = bct.betweenness_bin(self.matrix_bin)
+            self.centrality['edge_betweeness_bin'][subj] = self.BC
+
+            self.BC_w = bct.betweenness_wei(self.matrix_weight)
+            self.centrality['edge_betweeness_wei'][subj] = self.BC_w
+
+            self.v = bct.eigenvector_centrality_und(self.matrix)
+            self.centrality['eigenvector_centrality_und'][subj] = self.v
+
+            self.coreness, self.kn =  bct.kcoreness_centrality_bu(self.matrix_bin)
+            self.centrality['coreness_kcoreness_centrality_bu'][subj] = self.coreness
+            self.centrality['kn_kcoreness_centrality_bu'][subj] = self.kn
+
+            self.Z =  bct.module_degree_zscore(self.matrix, ci=self.ci_original)
+            self.centrality['module_degree_zscore'][subj] = self.Z
+
+            self.P = bct.participation_coef(self.matrix, ci=self.ci_original)
+            self.centrality['participation_coef'][subj] = self.P
+
+            self.Cs = bct.subgraph_centrality(self.matrix_bin)
+            self.centrality['subgraph_centrality'][subj] = self.Cs
+
+        return self.centrality
