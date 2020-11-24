@@ -21,15 +21,12 @@ setup(
       keywords = ['brain network','dwi','imaging','fMRI','diffusion','structual'],
       install_requires=[
           'numpy',
-          'nipype',
           'mayavi',
           'pysurfer',
           'pandas',
           'matplotlib',
           'scipy',
-          'nibabel',
           'mne',
-          'nilearn',
       ],
       classifiers=[
           'Development Status :: 3 - Alpha',

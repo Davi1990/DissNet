@@ -42,6 +42,5 @@ To test that all has been installed correctly type in a terminal:
 - Scipy
 - Pysurfer
 - Pandas
-- Nipype
 - MNE
 - Mayavi
