@@ -1,11 +1,27 @@
 # DissNet
 
-DissNet is a python module that aims to create an integrated framework for  structural connectome dissection, network level measure of connectivity, visualization and analysis.
+DissNet is an open-source Python package for exploring, dissecting, analyzing
+and visualizing human structural connectome data. It includes modules for data
+visualization, Graph Theory measures extraction, standard connectivity measures
+estimation. All the measures can be also computed for every single network.
 
 
-![alt text](https://github.com/Davi1990/DissNet/blob/main/image.png?raw=true)
-
-# Dependencies
-
+![alt text](https://github.com/Davi1990/DissNet/blob/main/docs/video.gif?raw=true)
 
 # Install
+To install the latest stable version of DissNet, you can use pip_ in a terminal:
+
+.. code-block:: bash
+
+    pip install -U DissNet
+
+
+
+# Dependencies
+- Python>=3.5
+- Scipy
+- Pysurfer
+- Pandas
+- Nipype
+- MNE
+- Mayavi

@@ -7,12 +7,12 @@ from mayavi import mlab
 import numpy as np
 import pandas as pd
 from math import pi
-import networkx as nx
-from tvtk.api import tvtk
 
 
-def plot_surface(subjects_dir, atlas, subject, hemi, surf, opacity=None ,scale_factor=None, threshold=None,
-                 connectivity_matrix=None, connectivity_thr=None):
+
+def plot_surface(subjects_dir, atlas, subject, hemi, surf, opacity=None,
+                 scale_factor=None, threshold=None, connectivity_matrix=None,
+                 connectivity_thr=None):
     '''
     plot each nodes using pysurfer
 
@@ -46,7 +46,7 @@ def plot_surface(subjects_dir, atlas, subject, hemi, surf, opacity=None ,scale_f
         vector (dim number of regions x number of regions) representing
         the connectivity of each node.
     connectivity_thr (optional) = scalar |
-    
+
     '''
     np.set_printoptions(suppress=True) #prevent numpy exponential
     label = pd.read_excel(atlas, header=None)
@@ -114,7 +114,9 @@ def plot_surface(subjects_dir, atlas, subject, hemi, surf, opacity=None ,scale_f
     mlab.show()
 
 
-def spider_plot(labels, values, colour=None, linestyle=None, linecolour=None, linewidth=None, label_colour=None, label_size=None, alpha=None, ylim=None):
+def spider_plot(labels, values, colour=None, linestyle=None, linecolour=None,
+                linewidth=None, label_colour=None, label_size=None, alpha=None,
+                ylim=None):
 
     if ylim==None:
         ylim= np.max(values) + (10 - np.max(values)  % 10)
