@@ -5,12 +5,20 @@ and visualizing human structural connectome data. It includes modules for data
 visualization, Graph Theory measures extraction, standard connectivity measures
 estimation. All the measures can be also computed for every single network.
 
-Visualization tool
-![alt text](https://github.com/Davi1990/DissNet/blob/main/docs/video.gif?raw=true)
+<p align="center">
+    Visualization tool
+</p>  
+<p align="center">
+    <img src="https://github.com/Davi1990/DissNet/blob/main/docs/video.gif" width="380"/>
+</p>
 
+<p align="center">
+    Network-level connectivity measures
+</p>
+<p align="center">
+    <img src="https://github.com/Davi1990/DissNet/blob/main/docs/network.png" width="380"/> <img src="https://github.com/Davi1990/DissNet/blob/main/docs/spider_plot.png" width="380"/>
+</p>
 
-Network-level connectivity measures
-![alt text1](https://github.com/Davi1990/DissNet/blob/main/docs/network.png?raw=true) ![alt text2](https://github.com/Davi1990/DissNet/blob/main/docs/spider_plot.png?raw=true)
 
 
 # Install
