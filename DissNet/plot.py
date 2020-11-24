@@ -144,7 +144,7 @@ def spider_plot(labels, values, colour=None, linestyle=None, linecolour=None,
         linewidth=linewidth
 
     if linecolour==None:
-        linecolour=color
+        linecolour='orange'
     else:
         linecolour=linecolour
 
