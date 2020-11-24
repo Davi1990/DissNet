@@ -25,7 +25,8 @@ estimation. All the measures can be also computed for every single network.
 To install the latest stable version of DissNet, you can use pip_ in a terminal:
 
 ```bash
-    pip install -U DissNet
+    cd DissNet/
+    python setup.py install --user
 ```
 
 # Dependencies

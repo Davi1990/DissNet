@@ -114,14 +114,39 @@ def plot_surface(subjects_dir, atlas, subject, hemi, surf, opacity=None,
     mlab.show()
 
 
-def spider_plot(labels, values, colour=None, linestyle=None, linecolour=None,
+def spider_plot(excel_labels, values2plot, colour=None, linestyle=None, linecolour=None,
                 linewidth=None, label_colour=None, label_size=None, alpha=None,
                 ylim=None):
 
-    if ylim==None:
-        ylim= np.max(values) + (10 - np.max(values)  % 10)
-    else:
-        ylim=ylim
+    '''
+    spider plot of network measures in percentage
+
+    Parameters
+    ----------
+
+    excel_labels: excel file |
+        please se example available in the repo (e.g. network_colour.xlsx)
+    values2plot = np.array |
+        values to plot must have the same dimension of excel_labels
+    colour (optional) = scalar or array-like, optional
+        set the colors of the plot (Default is 'orange')
+    linestyle (optional) :  str |
+        set the patch linestyle (e.g. '-' or 'solid', '--' or 'dashed', '-.'
+        or 'dashdot', ':' or 'dotted') (Default is 'solid')
+    linecolour (optional)= float |
+        set the colors of the line (Default is 'orange')
+    linewidth (optional) = scalar or array-like, optional
+        Width of the bar edge(s). If 0, don't draw edges. (Default is 1)
+    label_colour= scalar or array-like, optional
+        set the colors of the labels (Default is 'black')
+    label_size (optional) = scalar |
+        set the size of labels (Default is 8)
+    alpha (optional) = float |
+        set the alpha transparency of the patch (Default is 0.5)
+    ylim (optional) = scalar |
+        (by default it will automatically adjust the ylim)
+
+    '''
 
     if alpha==None:
         alpha = 0.5
@@ -158,7 +183,14 @@ def spider_plot(labels, values, colour=None, linestyle=None, linecolour=None,
     else:
         colour=colour
 
-    values = values * 100 / np.sum(values)
+    labels = list(np.array(pd.read_excel(excel_labels, header=None))[:,0])
+    values = values2plot * 100 / np.sum(values2plot)
+
+    if ylim==None:
+        ylim= np.max(values) + (10 - np.max(values)  % 10)
+    else:
+        ylim=ylim
+
     values = values.tolist()
     values += values[:1]
     N = len(labels)
@@ -178,7 +210,33 @@ def spider_plot(labels, values, colour=None, linestyle=None, linecolour=None,
 
 
 
-def bar_plot(network2use, values, align=None, alpha=None, xlabel=None):
+def bar_plot(excel_labels, values2plot, align=None, alpha=None, xlabel=None,
+            percentage_value=False):
+
+    '''
+    bar plot of network measures
+
+    Parameters
+    ----------
+
+    excel_labels: excel file |
+        please se example available in the repo (e.g. network_colour.xlsx)
+    values2plot = np.array |
+        values to plot must have the same dimension of excel_labels
+    align (optional) = str |
+        Alignment of the bars to the x coordinates (e.g.'center' will center
+        the base on the x positions; 'edge' will align the left edges of the
+        bars with the x positions. To align the bars on the right edge pass
+        a negative width and align='edge') (Default is 'center')
+    alpha (optional) = float |
+        set the alpha transparency of the patch (Default is 0.8)
+    xlabel (optional) = str |
+        set the label of x axis (Default is 'Connectivity')
+    percentage_value (optional) : Boolean|
+        True return values express in percentage_value
+        False return raw values (Default is False)
+    '''
+
     if align==None:
         align='center'
     else:
@@ -194,7 +252,13 @@ def bar_plot(network2use, values, align=None, alpha=None, xlabel=None):
     else:
         xlabel=xlabel
 
-    network2use = pd.read_excel(network2use, header=None)
+    if percentage_value==False:
+        values = values2plot
+    else:
+        values = 100* values2plot/np.sum(values2plot)
+
+
+    network2use = pd.read_excel(excel_labels, header=None)
     Net_label=list(network2use[0])
     barlist= plt.barh(np.arange(len(Net_label)), values, align=align, alpha=alpha)
     plt.yticks(np.arange(len(Net_label)), Net_label)
