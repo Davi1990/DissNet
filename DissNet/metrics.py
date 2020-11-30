@@ -299,7 +299,7 @@ class Connectivity_metrics(object):
 
     def net_ranking(self, sbj_number, nodes_number, make_symmetric=True, percentage_value=False):
         '''
-        computing how much each node is connected with the each network
+        computing how much each node is connected with the other network
 
         Parameters
         ----------
@@ -381,7 +381,7 @@ class Graph_Theory(object):
                         True indicate that the matrix is either upper
                         or lower triangular and need to be symmetrize
                         False indicate that the matrix is a full matrix already
-        binarize= Boolean|
+        binarize: Boolean|
                         True will make the connectivity matrix binary
                         Default is False
 
@@ -403,12 +403,12 @@ class Graph_Theory(object):
 
         self.all_nodal_degree = {
         "degree": np.zeros([sbj_number, nodes_number]),
-        "in_degree" : np.zeros([sbj_number, nodes_number]),
-        "out_degree" : np.zeros([sbj_number, nodes_number]),
-        "joint_in_degree" : np.zeros([sbj_number, nodes_number]),
-        "joint_out_degree" : np.zeros([sbj_number, nodes_number]),
-        "joint_bilateral" : np.zeros([sbj_number, nodes_number]),
-        "node_strength_dir": np.zeros([sbj_number, nodes_number]),
+#        "in_degree" : np.zeros([sbj_number, nodes_number]),
+#        "out_degree" : np.zeros([sbj_number, nodes_number]),
+#        "joint_in_degree" : np.zeros([sbj_number, nodes_number]),
+#        "joint_out_degree" : np.zeros([sbj_number, nodes_number]),
+#        "joint_bilateral" : np.zeros([sbj_number, nodes_number]),
+#        "node_strength_dir": np.zeros([sbj_number, nodes_number]),
         "node_strength_undir":np.zeros([sbj_number, nodes_number])
         }
         for subj in range(len(self.matrices_files)):
@@ -426,18 +426,18 @@ class Graph_Theory(object):
 
             np.fill_diagonal(self.matrix,0)
 
-            self.inp, self.od, self.deg = bct.algorithms.degrees_dir(self.matrix)
-            self.all_nodal_degree['in_degree'][subj] = self.inp
-            self.all_nodal_degree['out_degree'][subj] = self.od
+            self.deg = bct.algorithms.degrees_und(self.matrix)
+            # self.all_nodal_degree['in_degree'][subj] = self.inp
+            # self.all_nodal_degree['out_degree'][subj] = self.od
             self.all_nodal_degree['degree'][subj] = self.deg
 
-            self.J, self.J_od, self.J_id, self.J_bl = bct.algorithms.jdegree(self.matrix)
-            self.all_nodal_degree['joint_in_degree'][subj] = self.J_id
-            self.all_nodal_degree['joint_out_degree'][subj] = self.J_od
-            self.all_nodal_degree['joint_bilateral'][subj] = self.J_bl
+            # self.J, self.J_od, self.J_id, self.J_bl = bct.algorithms.jdegree(self.matrix)
+            # self.all_nodal_degree['joint_in_degree'][subj] = self.J_id
+            # self.all_nodal_degree['joint_out_degree'][subj] = self.J_od
+            # self.all_nodal_degree['joint_bilateral'][subj] = self.J_bl
 
-            self.nodestr_dir = bct.algorithms.strengths_dir(self.matrix)
-            self.all_nodal_degree['node_strength_dir'][subj] = self.nodestr_dir
+#            self.nodestr_dir = bct.algorithms.strengths_dir(self.matrix)
+#            self.all_nodal_degree['node_strength_dir'][subj] = self.nodestr_dir
 
             self.nodestr_undir = bct.algorithms.strengths_und(self.matrix)
             self.all_nodal_degree['node_strength_undir'][subj] = self.nodestr_undir
@@ -456,13 +456,13 @@ class Graph_Theory(object):
                     number of subjects
         nodes_number: int|
                       number of nodes
-        label_dic = dict |
+        label_dic: dict |
                     dictonary computed using files.labels()
         make_symmetric: Boolean|
                         True indicate that the matrix is either upper
                         or lower triangular and need to be symmetrize
                         False indicate that the matrix is a full matrix already
-        binarize= Boolean|
+        binarize: Boolean|
                         True will make the connectivity matrix binary
                         Default is False
 
@@ -511,7 +511,7 @@ class Graph_Theory(object):
                     number of subjects
         networks_number: int|
                       number of networks
-        label_dic = dict |
+        label_dic: dict |
                     dictonary computed using files.labels()
         make_symmetric: Boolean|
                         True indicate that the matrix is either upper
@@ -577,7 +577,7 @@ class Graph_Theory(object):
                     number of subjects
         networks_number: int|
                       number of networks
-        label_dic = dict |
+        label_dic:  dict |
                     dictonary computed using files.labels()
         make_symmetric: Boolean|
                         True indicate that the matrix is either upper
