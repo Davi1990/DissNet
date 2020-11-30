@@ -75,6 +75,7 @@ class Resilience(object):
                     self.g.remove_node(self.l.pop(0)[0])
                     if recalculate:
                         self.matrix = networkx.convert_matrix.to_numpy_array(self.g)
+                        self.g = networkx.convert_matrix.from_numpy_array(self.matrix)
                         self.deg = bct.algorithms.degrees_und(self.matrix)
                         self.m = dict(enumerate(self.deg.flatten(), 0))
                         self.l = sorted(self.m.items(), key = operator.itemgetter(1), reverse = True)
@@ -181,6 +182,7 @@ class Resilience(object):
                         self.g.remove_node(self.l.pop(0)[0])
                         if recalculate:
                             self.net2use = networkx.convert_matrix.to_numpy_array(self.g)
+                            self.g = networkx.convert_matrix.from_numpy_array(self.matrix)
                             self.deg = bct.algorithms.degrees_und(self.net2use)
                             self.m = dict(enumerate(self.deg.flatten(), 0))
                             self.l = sorted(self.m.items(), key = operator.itemgetter(1), reverse = True)
