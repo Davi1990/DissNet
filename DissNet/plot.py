@@ -7,6 +7,7 @@ from mayavi import mlab
 import numpy as np
 import pandas as pd
 from math import pi
+import pylab
 
 
 
@@ -22,8 +23,8 @@ def plot_surface(subjects_dir, atlas, subject, hemi, surf, opacity=None,
     subjects_dir = path to the subjects' folders
     atlas: excel file |
             please se example available in the repo (e.g. new_atlas_coords.xlsx)
-    subject = subject folder name that you want to plot
-    hemi = str |
+    subject: subject folder name that you want to plot
+    hemi: str |
         (ie 'lh', 'rh', 'both', or 'split'). In the case
         of 'both', both hemispheres are shown in the same window.
         In the case of 'split' hemispheres are displayed side-by-side
@@ -32,20 +33,20 @@ def plot_surface(subjects_dir, atlas, subject, hemi, surf, opacity=None,
         freesurfer surface mesh name (ie 'white', 'inflated', etc.). A cerebellum
         surface model is also available in the subject folder of the repo. For
         plot it simply enter 'cerebellum'
-    opacity (optional)= float |
+    opacity (optional): float |
         sets the overall opacity of colors, maintains transparent regions.
         Default is 0.2
-    scale_factor (optional) = np.array |
+    scale_factor (optional): np.array |
         vector (dim number of regions x 1) representing the size of each node.
         For example, it can be connectivity of that specific node calculated
         using any functions available in metrics. Default is 0.5
-    threshold= float |
+    threshold: float |
         threshold to plot only the nodes that overcome that specific values
         Default is None
-    connectivity_matrix (optional) = np.array |
+    connectivity_matrix (optional): np.array |
         vector (dim number of regions x number of regions) representing
         the connectivity of each node.
-    connectivity_thr (optional) = scalar |
+    connectivity_thr (optional): scalar |
 
     '''
     np.set_printoptions(suppress=True) #prevent numpy exponential
@@ -126,24 +127,24 @@ def spider_plot(excel_labels, values2plot, colour=None, linestyle=None, linecolo
 
     excel_labels: excel file |
         please se example available in the repo (e.g. network_colour.xlsx)
-    values2plot = np.array |
+    values2plot: np.array |
         values to plot must have the same dimension of excel_labels
     colour (optional) = scalar or array-like, optional
         set the colors of the plot (Default is 'orange')
     linestyle (optional) :  str |
         set the patch linestyle (e.g. '-' or 'solid', '--' or 'dashed', '-.'
         or 'dashdot', ':' or 'dotted') (Default is 'solid')
-    linecolour (optional)= float |
+    linecolour (optional): float |
         set the colors of the line (Default is 'orange')
-    linewidth (optional) = scalar or array-like, optional
+    linewidth (optional): scalar or array-like, optional
         Width of the bar edge(s). If 0, don't draw edges. (Default is 1)
-    label_colour= scalar or array-like, optional
+    label_colour: scalar or array-like, optional
         set the colors of the labels (Default is 'black')
-    label_size (optional) = scalar |
+    label_size (optional): scalar |
         set the size of labels (Default is 8)
-    alpha (optional) = float |
+    alpha (optional): float |
         set the alpha transparency of the patch (Default is 0.5)
-    ylim (optional) = scalar |
+    ylim (optional): scalar |
         (by default it will automatically adjust the ylim)
 
     '''
@@ -268,3 +269,75 @@ def bar_plot(excel_labels, values2plot, align=None, alpha=None, xlabel=None,
         barlist[net].set_color([network2use[1][net]/255.0,network2use[2][net]/255.0,network2use[3][net]/255.0])
 
     plt.show()
+
+
+def plot_networks_resilence(excel_labels, x, y, sbj2plot='average', alpha=0.6,
+                            linewidth=2.0):
+
+    '''
+    function for plotting resilience measure obtained via resilience.py functions
+
+    Parameters
+    ----------
+
+    excel_labels: excel file |
+        please se example available in the repo (e.g. network_colour.xlsx)
+    x: dict |
+            fraction of vertices removed for every network
+    y: dict |
+            fractional size of largest component for every network
+    sbj2plot (optional): str or int |
+            if it is an integer then the function will plot the corresponding
+            subject number. Otherwise if it is 'average' then the function
+            will compute the subjects' average (Default is 'average')
+    alpha (optional) = float |
+        set the alpha transparency of the patch (Default is 0.6)
+    linewidth (optional) = scalar or array-like, optional
+        Width of the bar edge(s). If 0, don't draw edges. (Default is 2.0)
+
+    '''
+
+    network2use = pd.read_excel(excel_labels, header=None)
+    net=list(network2use[0])
+
+    x2plot = dict.fromkeys(net)
+    y2plot = dict.fromkeys(net)
+
+    for network in net:
+        x2plot[network] = np.array(x[network])
+        y2plot[network] = np.array(y[network])
+
+    if sbj2plot=='average':
+        x_avg = dict.fromkeys(net)
+        y_avg = dict.fromkeys(net)
+        plotter = []
+        for network in net:
+            x_avg[network] = np.mean(x2plot[network], axis=0)
+            y_avg[network] = np.mean(y2plot[network], axis=0)
+            plotter += plt.plot(x_avg[network], y_avg[network],
+                      color = [network2use[1][net.index(network)]/255.0,
+                      network2use[2][net.index(network)]/255.0,
+                      network2use[3][net.index(network)]/255.0],
+                      alpha = alpha, linewidth = linewidth)
+        plt.xlabel('fraction of vertices removed')
+        plt.ylabel('fractional size of largest component')
+        plt.title('Average networks vulnerability')
+        plt.legend(plotter, net)
+        plt.show()
+    else:
+        x_avg = dict.fromkeys(net)
+        y_avg = dict.fromkeys(net)
+        plotter = []
+        for network in net:
+            x_avg[network] = x2plot[network][sbj2plot]
+            y_avg[network] = y2plot[network][sbj2plot]
+            plotter += plt.plot(x_avg[network], y_avg[network],
+                      color = [network2use[1][net.index(network)]/255.0,
+                      network2use[2][net.index(network)]/255.0,
+                      network2use[3][net.index(network)]/255.0],
+                      alpha = alpha, linewidth = linewidth)
+        plt.xlabel('fraction of vertices removed')
+        plt.ylabel('fractional size of largest component')
+        plt.title('Average networks vulnerability')
+        plt.legend(plotter, net)
+        plt.show()
