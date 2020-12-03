@@ -27,6 +27,8 @@ setup(
           'matplotlib',
           'scipy',
           'mne',
+          'networkx',
+          'bct'
       ],
       classifiers=[
           'Development Status :: 3 - Alpha',

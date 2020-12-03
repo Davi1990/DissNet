@@ -9,7 +9,7 @@ estimation. All the measures can be also computed for every single network.
     <b>New Visualization Tool</b>
 </p>  
 <p align="center">
-    <img src="https://github.com/Davi1990/DissNet/blob/main/docs/video.gif" width="380"/>
+    <img src="https://github.com/Davi1990/DissNet/blob/main/docs/video_unscreen.gif" width="380"/>
 </p>
 
 <p align="center">
@@ -19,6 +19,12 @@ estimation. All the measures can be also computed for every single network.
     <img src="https://github.com/Davi1990/DissNet/blob/main/docs/network.png" width="380"/> <img src="https://github.com/Davi1990/DissNet/blob/main/docs/spider_plot.png" width="380"/>
 </p>
 
+<p align="center">
+    <b>Network-level vulnerability against target or random attack</b>
+</p>
+<p align="center">
+    <img src="https://github.com/Davi1990/DissNet/blob/main/docs/resilience_net.png" width="380"/> <img src="https://github.com/Davi1990/DissNet/blob/main/docs/vulnerability_net.png" width="380"/>
+</p>
 
 
 # Install

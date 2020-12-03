@@ -1,3 +1,8 @@
+"""
+miscelallaneous functions and classes to compute brain resilience to attacks
+Author: Davide Momi, PhD [momi.davide89@gmail.com], https://twitter.com/davemomi
+"""
+
 import networkx, numpy, operator, pylab, random, sys
 import bct as bct
 import pandas as pd
@@ -144,14 +149,6 @@ class Resilience(object):
             self.all_vulnerability[subj] = np.array(0.5 - self.R / self.n)
             self.all_largest_comp[subj] = np.array(self.lcomp)
 
-        pylab.plot(np.mean(self.x, axis=0), np.mean(self.y, axis=0), "b-", alpha = 0.6, linewidth = 2.0)
-        pylab.xlabel('fraction of vertices removed')
-        pylab.ylabel('fractional size of largest component')
-        pylab.title('Network vulnerability against ' + attack_type + ' attack based on ' + metric2use)
-        pylab.xlim(0, 1)
-        pylab.ylim(0, np.max(np.mean(self.y, axis=0)))
-        plt.show()
-
         return self.all_vulnerability, self.all_x, self.all_y, self.all_largest_comp
 
 
@@ -268,7 +265,7 @@ class Resilience(object):
 
                         if recalculate:
                             self.net2use = networkx.convert_matrix.to_numpy_array(self.g)
-                            self.g = networkx.convert_matrix.from_numpy_array(self.matrix)
+                            self.g = networkx.convert_matrix.from_numpy_array(self.net2use)
                             if metric2use=='degree':
                                 self.deg = bct.algorithms.degrees_und(self.net2use)
                             elif metric2use=='eigenvector_centrality':
