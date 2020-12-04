@@ -45,8 +45,8 @@ To test that all has been installed correctly type in a terminal:
 
 # Dependencies
 - Python>=3.5
-- Scipy
 - Pysurfer
 - Pandas
 - MNE
 - Mayavi
+- networkx

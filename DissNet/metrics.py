@@ -21,7 +21,8 @@ class Connectivity_metrics(object):
         self.labels_dic = labels_dic
 
 
-    def nodes_overall_conn(self, make_symmetric=True):
+    def nodes_overall_conn(self, make_symmetric=True, upper_threshold=None,
+                           lower_threshold=None):
         '''
 
         computing the overall connectivity of each node
@@ -34,7 +35,14 @@ class Connectivity_metrics(object):
                         True indicate that the matrix is either upper
                         or lower triangular and need to be symmetrize
                         False indicate that the matrix is a full matrix already
-
+        upper_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        under that threshold will be 0 (Default is None)
+        lower_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        above that threshold will be 0 (Default is None)
         Returns
         -------
 
@@ -53,6 +61,17 @@ class Connectivity_metrics(object):
                 self.matrix = self.matrix + self.matrix.T - np.diag(self.matrix.diagonal())
             else:
                 self.matrix = self.matrix
+
+            self.max=np.max(self.matrix.flatten())
+            if upper_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix < upper_threshold*self.max/100 ] = 0
+            if lower_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix > lower_threshold*self.max/100 ] = 0
+
             np.fill_diagonal(self.matrix,0)
             for nodes in range(self.matrix.shape[0]):
                 self._node_conn =  np.sum(self.matrix[nodes])
@@ -64,7 +83,8 @@ class Connectivity_metrics(object):
 
 
 
-    def node_inner_conn(self, sbj_number, nodes_number, make_symmetric=True):
+    def node_inner_conn(self, sbj_number, nodes_number, make_symmetric=True,
+                        upper_threshold=None, lower_threshold=None):
         '''
         computing the connectivity of each node with its own network
 
@@ -78,7 +98,14 @@ class Connectivity_metrics(object):
                         True indicate that the matrix is either upper
                         or lower triangular and need to be symmetrize
                         False indicate that the matrix is a full matrix already
-
+        upper_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        under that threshold will be 0 (Default is None)
+        lower_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        above that threshold will be 0 (Default is None)
         Returns
         -------
 
@@ -99,6 +126,17 @@ class Connectivity_metrics(object):
                 self.matrix = self.matrix + self.matrix.T - np.diag(self.matrix.diagonal())
             else:
                 self.matrix = self.matrix
+
+            self.max=np.max(self.matrix.flatten())
+            if upper_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix < upper_threshold*self.max/100 ] = 0
+            if lower_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix > lower_threshold*self.max/100 ] = 0
+
             np.fill_diagonal(self.matrix,0)
             for network in net:
                 for nodes in self.labels_dic[network]:
@@ -110,7 +148,8 @@ class Connectivity_metrics(object):
 
 
 
-    def node_outer_conn(self, sbj_number, nodes_number, make_symmetric=True):
+    def node_outer_conn(self, sbj_number, nodes_number, make_symmetric=True,
+                        upper_threshold=None, lower_threshold=None):
         '''
         computing the connectivity of each node with the other nodes
         which don't belong to the same network
@@ -125,7 +164,14 @@ class Connectivity_metrics(object):
                         True indicate that the matrix is either upper
                         or lower triangular and need to be symmetrize
                         False indicate that the matrix is a full matrix already
-
+        upper_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        under that threshold will be 0 (Default is None)
+        lower_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        above that threshold will be 0 (Default is None)
         Returns
         -------
 
@@ -146,6 +192,17 @@ class Connectivity_metrics(object):
                 self.matrix = self.matrix + self.matrix.T - np.diag(self.matrix.diagonal())
             else:
                 self.matrix = self.matrix
+
+            self.max=np.max(self.matrix.flatten())
+            if upper_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix < upper_threshold*self.max/100 ] = 0
+            if lower_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix > lower_threshold*self.max/100 ] = 0
+
             np.fill_diagonal(self.matrix,0)
             self.nodes_ranges = np.arange(len(self.labels_dic['nodes']))
             for network in net:
@@ -159,7 +216,8 @@ class Connectivity_metrics(object):
 
 
 
-    def node_ranking(self, sbj_number, nodes_number, networks_number, make_symmetric=True):
+    def node_ranking(self, sbj_number, nodes_number, networks_number,
+                     make_symmetric=True, upper_threshold=None, lower_threshold=None):
         '''
         computing how much each node is connected with the each network
 
@@ -176,6 +234,14 @@ class Connectivity_metrics(object):
                         True indicate that the matrix is either upper
                         or lower triangular and need to be symmetrize
                         False indicate that the matrix is a full matrix already
+        upper_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        under that threshold will be 0 (Default is None)
+        lower_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        above that threshold will be 0 (Default is None)
         Returns
         -------
 
@@ -194,6 +260,17 @@ class Connectivity_metrics(object):
                 self.matrix = self.matrix + self.matrix.T - np.diag(self.matrix.diagonal())
             else:
                 self.matrix = self.matrix
+
+            self.max=np.max(self.matrix.flatten())
+            if upper_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix < upper_threshold*self.max/100 ] = 0
+            if lower_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix > lower_threshold*self.max/100 ] = 0
+
             np.fill_diagonal(self.matrix,0)
             for nodes in range(self.matrix.shape[0]):
                 self.node_conn = self.matrix[nodes]
@@ -205,7 +282,8 @@ class Connectivity_metrics(object):
 
 
 
-    def net_inner_conn(self, make_symmetric=True):
+    def net_inner_conn(self, make_symmetric=True, upper_threshold=None,
+                       lower_threshold=None):
         '''
         computing the how much each network is connected with itself
 
@@ -216,6 +294,14 @@ class Connectivity_metrics(object):
                         True indicate that the matrix is either upper
                         or lower triangular and need to be symmetrize
                         False indicate that the matrix is a full matrix already
+        upper_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        under that threshold will be 0 (Default is None)
+        lower_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        above that threshold will be 0 (Default is None)
         Returns
         -------
 
@@ -235,6 +321,17 @@ class Connectivity_metrics(object):
                 self.matrix = self.matrix + self.matrix.T - np.diag(self.matrix.diagonal())
             else:
                 self.matrix = self.matrix
+
+            self.max=np.max(self.matrix.flatten())
+            if upper_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix < upper_threshold*self.max/100 ] = 0
+            if lower_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix > lower_threshold*self.max/100 ] = 0
+
             np.fill_diagonal(self.matrix,0)
             for network in net:
                 self.subj_matrix = self.matrix[self.labels_dic[network]]
@@ -249,7 +346,8 @@ class Connectivity_metrics(object):
 
 
 
-    def net_outer_conn(self, make_symmetric=True):
+    def net_outer_conn(self, make_symmetric=True, upper_threshold=None,
+                       lower_threshold=None):
         '''
         computing how much each network is connected with the other
         networks
@@ -261,7 +359,14 @@ class Connectivity_metrics(object):
                         True indicate that the matrix is either upper
                         or lower triangular and need to be symmetrize
                         False indicate that the matrix is a full matrix already
-
+        upper_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        under that threshold will be 0 (Default is None)
+        lower_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        above that threshold will be 0 (Default is None)
         Returns
         -------
 
@@ -281,6 +386,17 @@ class Connectivity_metrics(object):
                 self.matrix = self.matrix + self.matrix.T - np.diag(self.matrix.diagonal())
             else:
                 self.matrix = self.matrix
+
+            self.max=np.max(self.matrix.flatten())
+            if upper_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix < upper_threshold*self.max/100 ] = 0
+            if lower_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix > lower_threshold*self.max/100 ] = 0
+
             np.fill_diagonal(self.matrix,0)
             self.nodes_ranges = np.arange(len(self.labels_dic['nodes']))
             for network in net:
@@ -297,7 +413,9 @@ class Connectivity_metrics(object):
 
 
 
-    def net_ranking(self, sbj_number, nodes_number, make_symmetric=True, percentage_value=False):
+    def net_ranking(self, sbj_number, nodes_number, make_symmetric=True,
+                    upper_threshold=None, lower_threshold=None,
+                    percentage_value=False):
         '''
         computing how much each node is connected with the other network
 
@@ -312,6 +430,14 @@ class Connectivity_metrics(object):
                         True indicate that the matrix is either upper
                         or lower triangular and need to be symmetrize
                         False indicate that the matrix is a full matrix already
+        upper_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        under that threshold will be 0 (Default is None)
+        lower_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        above that threshold will be 0 (Default is None)
         percentage_value: Boolean|
                         True return values express in percentage_value
                         False return raw values
@@ -327,7 +453,7 @@ class Connectivity_metrics(object):
         '''
         with open(self.net_label_txt) as f:
             net=f.read().splitlines()
-        self.all_conn = self.node_ranking(sbj_number, nodes_number, len(net), make_symmetric=make_symmetric)
+        self.all_conn = self.node_ranking(sbj_number, nodes_number, len(net), make_symmetric=make_symmetric, upper_threshold=upper_threshold, lower_threshold=lower_threshold)
         self.all_conn_rank = np.zeros([sbj_number, len(net), len(net)])
         for subj in range(len(self.matrices_files)):
             self.subj2use = self.all_conn[subj,:,:]
@@ -342,15 +468,18 @@ class Connectivity_metrics(object):
 
 
 
-    def all_standard_metrics(self, sbj_number, nodes_number, networks_number, make_symmetric=True, percentage_value=False):
+    def all_standard_metrics(self, sbj_number, nodes_number, networks_number,
+                             make_symmetric=True, upper_threshold=None,
+                             lower_threshold=None, percentage_value=False):
+
         self.metrics_dict = {
-        "nodes_overall_conn": self.nodes_overall_conn(make_symmetric=make_symmetric),
-        "node_inner_conn": self.node_inner_conn(sbj_number, nodes_number, make_symmetric=make_symmetric),
-        "node_outer_conn": self.node_outer_conn(sbj_number, nodes_number, make_symmetric=make_symmetric),
-        "node_ranking": self.node_ranking(sbj_number, nodes_number, networks_number, make_symmetric=make_symmetric),
-        "net_inner_conn": self.net_inner_conn(make_symmetric=make_symmetric),
-        "net_outer_conn": self.net_outer_conn(make_symmetric=make_symmetric),
-        "net_ranking": self.net_ranking(sbj_number, nodes_number, make_symmetric=make_symmetric, percentage_value=percentage_value)
+        "nodes_overall_conn": self.nodes_overall_conn(make_symmetric=make_symmetric, upper_threshold=upper_threshold, lower_threshold=lower_threshold),
+        "node_inner_conn": self.node_inner_conn(sbj_number, nodes_number, make_symmetric=make_symmetric, upper_threshold=upper_threshold, lower_threshold=lower_threshold),
+        "node_outer_conn": self.node_outer_conn(sbj_number, nodes_number, make_symmetric=make_symmetric, upper_threshold=upper_threshold, lower_threshold=lower_threshold),
+        "node_ranking": self.node_ranking(sbj_number, nodes_number, networks_number, make_symmetric=make_symmetric, upper_threshold=upper_threshold, lower_threshold=lower_threshold),
+        "net_inner_conn": self.net_inner_conn(make_symmetric=make_symmetric, upper_threshold=upper_threshold, lower_threshold=lower_threshold),
+        "net_outer_conn": self.net_outer_conn(make_symmetric=make_symmetric, upper_threshold=upper_threshold, lower_threshold=lower_threshold),
+        "net_ranking": self.net_ranking(sbj_number, nodes_number, make_symmetric=make_symmetric, upper_threshold=upper_threshold, lower_threshold=lower_threshold, percentage_value=percentage_value)
         }
 
         return self.metrics_dict
@@ -366,7 +495,8 @@ class Graph_Theory(object):
         self.net_label_txt = net_label_txt
         self.labels_dic = labels_dic
 
-    def nodal_degree(self, sbj_number, nodes_number, make_symmetric=True, binarize=False):
+    def nodal_degree(self, sbj_number, nodes_number, make_symmetric=True,
+                     upper_threshold=None, lower_threshold=None, binarize=False):
         '''
         computing graph theory node measures regardless of network affiliation
 
@@ -381,6 +511,14 @@ class Graph_Theory(object):
                         True indicate that the matrix is either upper
                         or lower triangular and need to be symmetrize
                         False indicate that the matrix is a full matrix already
+        upper_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        under that threshold will be 0 (Default is None)
+        lower_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        above that threshold will be 0 (Default is None)
         binarize: Boolean|
                         True will make the connectivity matrix binary
                         Default is False
@@ -419,6 +557,16 @@ class Graph_Theory(object):
             else:
                 self.matrix = self.matrix
 
+            self.max=np.max(self.matrix.flatten())
+            if upper_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix < upper_threshold*self.max/100 ] = 0
+            if lower_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix > lower_threshold*self.max/100 ] = 0
+
             if binarize==True:
                 self.matrix = bct.algorithms.binarize(self.matrix)
             else:
@@ -445,7 +593,9 @@ class Graph_Theory(object):
         return self.all_nodal_degree
 
 
-    def network_level_degree(self, sbj_number, nodes_number, label_dic, make_symmetric=True, binarize=False):
+    def network_level_degree(self, sbj_number, nodes_number, label_dic,
+                             make_symmetric=True, upper_threshold=None,
+                             lower_threshold=None, binarize=False,):
         '''
         computing graph theory node measures specific for each network
 
@@ -462,6 +612,14 @@ class Graph_Theory(object):
                         True indicate that the matrix is either upper
                         or lower triangular and need to be symmetrize
                         False indicate that the matrix is a full matrix already
+        upper_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        under that threshold will be 0 (Default is None)
+        lower_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        above that threshold will be 0 (Default is None)
         binarize: Boolean|
                         True will make the connectivity matrix binary
                         Default is False
@@ -483,7 +641,7 @@ class Graph_Theory(object):
 
         with open(self.net_label_txt) as f:
             net=f.read().splitlines()
-        self.degree = self.nodal_degree(sbj_number, nodes_number, make_symmetric=make_symmetric, binarize=binarize)
+        self.degree = self.nodal_degree(sbj_number, nodes_number, make_symmetric=make_symmetric, upper_threshold=upper_threshold, lower_threshold=lower_threshold, binarize=binarize)
         self.values = np.zeros([sbj_number, len(self.degree.keys()), len(net)])
         self.list = list(self.degree.keys())
 
@@ -500,7 +658,9 @@ class Graph_Theory(object):
 
 
 
-    def physical_connectivity(self, sbj_number, networks_number, label_dic, make_symmetric=True, binarize=False):
+    def physical_connectivity(self, sbj_number, networks_number, label_dic,
+                              make_symmetric=True, upper_threshold=None,
+                              lower_threshold=None, binarize=False):
         '''
         Density is the fraction of present connections to possible connections.
 
@@ -517,7 +677,14 @@ class Graph_Theory(object):
                         True indicate that the matrix is either upper
                         or lower triangular and need to be symmetrize
                         False indicate that the matrix is a full matrix already
-
+        upper_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        under that threshold will be 0 (Default is None)
+        lower_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        above that threshold will be 0 (Default is None)
         binarize= Boolean|
                         True will make the connectivity matrix binary
                         Default is False
@@ -548,6 +715,17 @@ class Graph_Theory(object):
             else:
                 self.matrix = self.matrix
 
+            self.max=np.max(self.matrix.flatten())
+            if upper_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix < upper_threshold*self.max/100 ] = 0
+
+            if lower_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix > lower_threshold*self.max/100 ] = 0
+
             if binarize==True:
                 self.matrix = bct.algorithms.binarize(self.matrix)
             else:
@@ -566,7 +744,9 @@ class Graph_Theory(object):
 
 
 
-    def modularity(self, sbj_number, networks_number, label_dic, make_symmetric=True, binarize=False):
+    def modularity(self, sbj_number, networks_number, label_dic,
+                   make_symmetric=True, upper_threshold=None,
+                   lower_threshold=None, binarize=False):
         '''
         Computing modularity of the adjencency matrix adjacency matrix
 
@@ -583,6 +763,14 @@ class Graph_Theory(object):
                         True indicate that the matrix is either upper
                         or lower triangular and need to be symmetrize
                         False indicate that the matrix is a full matrix already
+        upper_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        under that threshold will be 0 (Default is None)
+        lower_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        above that threshold will be 0 (Default is None)
         binarize= Boolean|
                         True will make the connectivity matrix binary
                         Default is False
@@ -616,10 +804,21 @@ class Graph_Theory(object):
             else:
                 self.matrix = self.matrix
 
+            self.max=np.max(self.matrix.flatten())
+            if upper_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix < upper_threshold*self.max/100 ] = 0
+            if lower_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix > lower_threshold*self.max/100 ] = 0
+
             if binarize==True:
                 self.matrix = bct.algorithms.binarize(self.matrix)
             else:
                 self.matrix = self.matrix
+
             np.fill_diagonal(self.matrix,0)
 
             for network in net:
@@ -645,7 +844,97 @@ class Graph_Theory(object):
 
 
 
-    def centrality(self, sbj_number, nodes_number, label_dic, atlas, make_symmetric=True, binarize=False):
+    def centrality(self, sbj_number, nodes_number, label_dic, atlas,
+                   make_symmetric=True, upper_threshold=None,
+                   lower_threshold=None, binarize=False):
+        '''
+        Computing modularity of the adjencency matrix adjacency matrix
+
+
+        Parameters
+        ----------
+        sbj_number: int |
+                    number of subjects
+        nodes_number: int|
+                      number of nodes
+        label_dic:  dict |
+                    dictonary computed using files.labels()
+        atlas: excel file |
+                    please se example available in the repo (e.g. new_atlas_coords.xlsx)
+        make_symmetric: Boolean|
+                        True indicate that the matrix is either upper
+                        or lower triangular and need to be symmetrize
+                        False indicate that the matrix is a full matrix already
+        upper_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        under that threshold will be 0 (Default is None)
+        lower_threshold: int |
+                        an integer value ranging from 0 to 100 representing the
+                        percentage of values as respect to maximum. The value
+                        above that threshold will be 0 (Default is None)
+        binarize= Boolean|
+                        True will make the connectivity matrix binary
+                        Default is False
+
+
+        Returns
+        -------
+
+        dict: : dictonary with the following keys |
+
+        edge_betweeness_bin: | np.ndarray
+                            Edge betweenness centrality is the fraction of all
+                            shortest paths in the network that contain a given
+                            edge. Edges with high values of betweenness centrality
+                            participate in a large number of shortest paths.
+                            It will return node betweenness centrality vector.
+        edge_betweeness_wei: | np.ndarray
+                            Edge betweenness centrality is the fraction of all
+                            shortest paths in the network that contain a given
+                            edge. Edges with high values of betweenness centrality
+                            participate in a large number of shortest paths.
+                            It will return node betweenness centrality vector.
+        eigenvector_centrality_und: | np.ndarray
+                            Eigenector centrality is a self-referential measure
+                            of centrality: nodes have high eigenvector centrality
+                            if they connect to other nodes that have high
+                            eigenvector centrality. The eigenvector centrality of
+                            node i is equivalent to the ith element in the eigenvector
+                            corresponding to the largest eigenvalue of the adjacency matrix.
+                            It will return the eigenvector associated with the
+                            largest eigenvalue of the matrix
+        coreness_kcoreness_centrality_bu: | np.ndarray
+                            The k-core is the largest subgraph comprising nodes
+                            of degree at least k. The coreness of a node is k if
+                            the node belongs to the k-core but not to the (k+1)-core.
+                            This function computes the coreness of all nodes for a
+                            given binary undirected connection matrix.
+                            It will return the node coreness.
+        kn_kcoreness_centrality_bu: | np.ndarray
+                            The k-core is the largest subgraph comprising nodes
+                            of degree at least k. The coreness of a node is k if
+                            the node belongs to the k-core but not to the (k+1)-core.
+                            This function computes the coreness of all nodes for a
+                            given binary undirected connection matrix.
+                            It will return the size of k-core
+        module_degree_zscore: | np.ndarray
+                            The within-module degree z-score is a within-module
+                            version of degree centrality. It will return
+                            within-module degree Z-score
+        participation_coef: | np.ndarray
+                            Participation coefficient is a measure of diversity
+                            of intermodular connections of individual nodes.
+                            It will return the participation coefficient
+        subgraph_centrality: | np.ndarray
+                            The subgraph centrality of a node is a weighted sum
+                            of closed walks of different lengths in the network
+                            starting and ending at the node. This function returns
+                            a vector of subgraph centralities for each node of the
+                            network. It will return the subgraph centrality
+
+        '''
+
 
         with open(self.net_label_txt) as f:
             net=f.read().splitlines()
@@ -672,6 +961,16 @@ class Graph_Theory(object):
                 self.matrix = self.matrix + self.matrix.T - np.diag(self.matrix.diagonal())
             else:
                 self.matrix = self.matrix
+
+            self.max=np.max(self.matrix.flatten())
+            if upper_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix < upper_threshold*self.max/100 ] = 0
+            if lower_threshold==None:
+                self.matrix= self.matrix
+            else:
+                self.matrix[self.matrix > lower_threshold*self.max/100 ] = 0
 
             self.matrix_bin = bct.algorithms.binarize(self.matrix)
             self.matrix_weight = self.matrix
