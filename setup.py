@@ -25,7 +25,7 @@ setup(
           'pysurfer',
           'pandas',
           'matplotlib',
-          'scipy',
+          'nipype',
           'mne',
           'networkx',
           'bct'
