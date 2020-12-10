@@ -11,7 +11,6 @@ import nipype.interfaces.fsl as fsl
 class DWI_preproc(object):
 
     def __init__(self, path, files_name):
-
         self.path = path
         self.files_name = files_name
 
@@ -24,10 +23,42 @@ class DWI_preproc(object):
         return self.dwi_files, self.bvecs_files, self.bvals_files
 
 
-    def preprocess_dwi_data(self, data, index, acqp, ResponseSD_algorithm='tournier',
+    def preprocess_dwi_data(self, data, index, acqp, atlas2use, ResponseSD_algorithm='tournier',
                             fod_algorithm='csd', tract_algorithm='iFOD2',
-                            streamlines_number= '10M', atlas2use,):
+                            streamlines_number= '10M'):
 
+        '''
+        preprocessing of dwi data and connectome extraction
+
+        Parameters
+        ----------
+
+        subjects_dir = path to the subjects' folders
+        data: tuple |
+            a tuple having the path to dwi, bvecs and bvals files. It is obtained
+            using the function grab_data()
+        index: str |
+            Name of text file specifying the relationship between the images in
+            --imain and the information in --acqp and --topup. E.g. index.txt
+        acqp: str |
+            Name of text file with information about the acquisition of the images
+            in --imain
+        atlas2use: str |
+             The input node parcellation image
+        ResponseSD_algorithm (optional): str |
+             Select the algorithm to be used to complete the script operation;
+             Options are: dhollander, fa, manual, msmt_5tt, tax, tournier
+             (Default is 'tournier')
+        fod_algorithm (optional): str |
+             The algorithm to use for FOD estimation. (options are: csd,msmt_csd)
+             (Default is 'csd')
+        tract_algorithm (optional): str |
+            specify the tractography algorithm to use. Valid choices are: FACT,
+            iFOD1, iFOD2, Nulldist1, Nulldist2, SD_Stream, Seedtest, Tensor_Det,
+            Tensor_Prob (Default is 'iFOD2')
+        streamlines_number (optional): str |
+            set the desired number of streamlines (Default is '10M')
+    '''
 
         if len(data[0]) != len(data[1]):
             raise ValueError('dwi datas do not have the same shape of bvec files')
@@ -35,6 +66,7 @@ class DWI_preproc(object):
             raise ValueError('dwi datas do not have the same shape of bval files')
         if len(data[1]) != len(data[2]):
             raise ValueError('bvec files do not have the same shape of bvec files')
+
 
         for subj in range(len(data[0])):
             print('Extracting B0 volume for subject',subj)
