@@ -24,7 +24,9 @@ class DWI_preproc(object):
         return self.dwi_files, self.bvecs_files, self.bvals_files
 
 
-    def preprocess_dwi_data(self, data, index, acqp):
+    def preprocess_dwi_data(self, data, index, acqp, ResponseSD_algorithm='tournier',
+                            fod_algorithm='csd', tract_algorithm='iFOD2',
+                            streamlines_number= '10M', atlas2use,):
 
 
         if len(data[0]) != len(data[1]):
@@ -78,3 +80,46 @@ class DWI_preproc(object):
             self.eddy.inputs.in_bval = data[2][subj]
             self.eddy.inputs.out_base = os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + '_dwi_denoised_eddy.nii.gz')
             self.eddy.run()
+
+            print('Running Bias Correction for subject',subj)
+            self.bias_correct = mrt.DWIBiasCorrect()
+            self.bias_correct.inputs.use_ants = True
+            self.bias_correct.inputs.in_file = os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + '_dwi_denoised_eddy.nii.gz')
+            self.bias_correct.inputs.grad_fsl  = (os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + '_dwi_denoised_eddy.eddy_rotated_bvecs.bvec'),  data[2][subj])
+            self.bias_correct.inputs.bias =  os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + '_bias.mif')
+            self.bias_correct.inputs.out_file = os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + '_dwi_denoised_eddy_unbiased.mif')
+            self.bias_correct.run()
+
+            print('Calculating Response function for subject',subj)
+            self.resp = mrt.ResponseSD()
+            self.resp.inputs.in_file = os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + '_dwi_denoised_eddy_unbiased.mif')
+            self.resp.inputs.algorithm = ResponseSD_algorithm
+            self.resp.inputs.grad_fsl = (os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + '_dwi_denoised_eddy.eddy_rotated_bvecs.bvec'),  data[2][subj])
+            self.resp.inputs.wm_file = os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + '_response.txt')
+            self.resp.run()
+
+            print('Estimating FOD for subject',subj)
+            self.fod = mrt.EstimateFOD()
+            self.fod.inputs.algorithm = fod_algorithm
+            self.fod.inputs.in_file = os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + '_dwi_denoised_eddy_unbiased.mif')
+            self.fod.inputs.wm_txt = os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + '_response.txt')
+            self.fod.inputs.mask_file = os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + '_denoised_brain_mask.nii.gz')
+            self.fod.inputs.grad_fsl = os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + '_response.txt')
+            self.fod.run()
+
+            print('Extracting whole brain tract for subject',subj)
+            self.tk = mrt.Tractography()
+            self.tk.inputs.in_file = os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + 'fods.mif')
+            self.tk.inputs.roi_mask = os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + '_denoised_brain_mask.nii.gz')
+            self.tk.inputs.algorithm = tract_algorithm
+            self.tk.inputs.seed_image = os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + '_denoised_brain_mask.nii.gz')
+            self.tk.inputs.select = streamlines_number
+            self.tk.inputs.out_file = os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + '_whole_brain_' + streamlines_number + '.tck')
+            self.tk.run()
+
+            print('Extracting connectome for subject',subj)
+            self.mat = mrt.BuildConnectome()
+            self.mat.inputs.in_file = os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + '_whole_brain_' + streamlines_number + '.tck')
+            self.mat.inputs.in_parc = atlas2use
+            self.mat.inputs.out_file = os.path.join(os.path.split(data[0][subj])[0] + '/' +  os.path.split(data[0][0])[1].split(".nii.gz")[0] + '_connectome.csv')
+            self.mat.run()
