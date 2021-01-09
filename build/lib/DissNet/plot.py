@@ -211,8 +211,8 @@ def spider_plot(excel_labels, values2plot, colour=None, linestyle=None, linecolo
 
 
 
-def bar_plot(excel_labels, data, metric2plot, xerr=False, align=None, alpha=None,
-            xlabel=None, percentage_value=False):
+def bar_plot(excel_labels, values2plot, align=None, alpha=None, xlabel=None,
+            percentage_value=False):
 
     '''
     bar plot of network measures
@@ -237,7 +237,6 @@ def bar_plot(excel_labels, data, metric2plot, xerr=False, align=None, alpha=None
         True return values express in percentage_value
         False return raw values (Default is False)
     '''
-    values2plot = np.mean(data[metric2plot], axis=0)
 
     if align==None:
         align='center'
@@ -259,14 +258,10 @@ def bar_plot(excel_labels, data, metric2plot, xerr=False, align=None, alpha=None
     else:
         values = 100* values2plot/np.sum(values2plot)
 
-    if xerr==False:
-        SEM = None
-    else:
-        SEM = np.std(data[metric2plot], axis=0)
 
     network2use = pd.read_excel(excel_labels, header=None)
     Net_label=list(network2use[0])
-    barlist= plt.barh(np.arange(len(Net_label)), values, xerr=SEM, align=align, alpha=alpha)
+    barlist= plt.barh(np.arange(len(Net_label)), values, align=align, alpha=alpha)
     plt.yticks(np.arange(len(Net_label)), Net_label)
     plt.xlabel(xlabel)
     plt.xlim(np.min(values) - np.std(values), np.max(values) + np.std(values))

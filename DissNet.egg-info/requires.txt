@@ -1,0 +1,9 @@
+numpy
+mayavi
+pysurfer
+pandas
+matplotlib
+nipype
+mne
+networkx
+bct
