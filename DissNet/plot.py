@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from math import pi
 import pylab
+from scipy.stats import sem
 
 
 
@@ -254,15 +255,26 @@ def bar_plot(excel_labels, data, metric2plot, xerr=False, align=None, alpha=None
     else:
         xlabel=xlabel
 
+    if xerr==False:
+        SEM = None
+    elif xerr=='std':
+        if percentage_value==False:
+            SEM = np.std(data[metric2plot], axis=0)
+        else:
+            SEM = 100* np.std(data[metric2plot], axis=0)/np.sum(values2plot)
+    elif xerr=='sem':
+        if percentage_value==False:
+            SEM = sem(data[metric2plot])
+        else:
+            SEM = 100* sem(data[metric2plot]) / np.sum(values2plot)
+
     if percentage_value==False:
         values = values2plot
     else:
         values = 100* values2plot/np.sum(values2plot)
 
-    if xerr==False:
-        SEM = None
-    else:
-        SEM = np.std(data[metric2plot], axis=0)
+
+
 
     network2use = pd.read_excel(excel_labels, header=None)
     Net_label=list(network2use[0])
